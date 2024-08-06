@@ -50,3 +50,40 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Editor backup files
+*~
+*.swp
+
+# IDE and editor specific files
+.vscode/
+.idea/
+*.code-workspace
+
+# CMake
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# Autotools
+*.loT
+*.inT
+.deps/
+*.deps
+
+# Tests
+test/*.log
+test/*.diff
+test/*.out
+test/test
