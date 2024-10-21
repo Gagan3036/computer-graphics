@@ -1,64 +1,57 @@
-#include<stdio.h>
-#include<graphics.h>
+#include <graphics.h>
+#include <stdio.h>
+#include <math.h>
 #include<conio.h>
 
-// Function to project 3D points to 2D using simple perspective projection
-void project_3D_to_2D(int x, int y, int z, int *x2d, int *y2d, int d) {
-    *x2d = x / (z + d);
-    *y2d = y / (z + d);
+// Function to project a 3D point to 2D
+void projectPoint(float x, float y, float z, int *x2D, int *y2D) {
+    float d = 300; // distance from the viewer
+    *x2D = (int)(d * x / (d + z)); // Perspective projection formula for x
+    *y2D = (int)(d * y / (d + z)); // Perspective projection formula for y
 }
 
-// Function to draw a 3D cube projected onto a 2D screen
-void draw_3D_cube() {
-    int gd = DETECT, gm;
-    initgraph(&gd, &gm, "C:\\Turboc3\\BGI");
-
-    // Define the cube vertices in 3D space
-    int cube_vertices[8][3] = {
-        {-100, -100, -100}, // Vertex 0: (x, y, z)
-        {100, -100, -100},  // Vertex 1
-        {100, 100, -100},   // Vertex 2
-        {-100, 100, -100},  // Vertex 3
-        {-100, -100, 100},  // Vertex 4
-        {100, -100, 100},   // Vertex 5
-        {100, 100, 100},    // Vertex 6
-        {-100, 100, 100}    // Vertex 7
+// Function to draw a 3D cube
+void drawCube(int centerX, int centerY, int size) {
+    // Vertices of the cube in 3D space
+    float vertices[8][3] = {
+        {-size, -size, -size}, {size, -size, -size}, {size, size, -size}, {-size, size, -size},
+        {-size, -size, size},  {size, -size, size},  {size, size, size},  {-size, size, size}
     };
 
-    // Distance from the screen (depth factor for projection)
-    int d = 300;
+    int projected[8][2]; // Array to store projected 2D coordinates
 
-    // Projected 2D coordinates
-    int projected_2D[8][2];
-
-    // Project all vertices from 3D to 2D
+    // Projecting vertices from 3D to 2D
     for (int i = 0; i < 8; i++) {
-        project_3D_to_2D(cube_vertices[i][0], cube_vertices[i][1], cube_vertices[i][2], 
-                         &projected_2D[i][0], &projected_2D[i][1], d);
+        int x2D, y2D;
+        projectPoint(vertices[i][0] + centerX, vertices[i][1] + centerY, vertices[i][2] + 200, &x2D, &y2D);
+        projected[i][0] = x2D;
+        projected[i][1] = y2D;
     }
 
-    // Draw the front face of the cube
-    line(projected_2D[0][0], projected_2D[0][1], projected_2D[1][0], projected_2D[1][1]);
-    line(projected_2D[1][0], projected_2D[1][1], projected_2D[2][0], projected_2D[2][1]);
-    line(projected_2D[2][0], projected_2D[2][1], projected_2D[3][0], projected_2D[3][1]);
-    line(projected_2D[3][0], projected_2D[3][1], projected_2D[0][0], projected_2D[0][1]);
+    // Drawing edges of the cube
+    for (int j = 0; j < 4; j++) {
+        // Front face
+        line(projected[j][0], projected[j][1], projected[(j + 1) % 4][0], projected[(j + 1) % 4][1]);
+        // Back face
+        line(projected[j + 4][0], projected[j + 4][1], projected[(j + 1) % 4 + 4][0], projected[(j + 1) % 4 + 4][1]);
+        // Connecting front and back face vertices
+        line(projected[j][0], projected[j][1], projected[j + 4][0], projected[j + 4][1]);
+    }
+}
 
-    // Draw the back face of the cube
-    line(projected_2D[4][0], projected_2D[4][1], projected_2D[5][0], projected_2D[5][1]);
-    line(projected_2D[5][0], projected_2D[5][1], projected_2D[6][0], projected_2D[6][1]);
-    line(projected_2D[6][0], projected_2D[6][1], projected_2D[7][0], projected_2D[7][1]);
-    line(projected_2D[7][0], projected_2D[7][1], projected_2D[4][0], projected_2D[4][1]);
+int main() {
+    int gd = DETECT, gm;
+    initgraph(&gd, &gm, "C:\\turboc3\\bgi");
 
-    // Draw the edges connecting the front and back faces
-    line(projected_2D[0][0], projected_2D[0][1], projected_2D[4][0], projected_2D[4][1]);
-    line(projected_2D[1][0], projected_2D[1][1], projected_2D[5][0], projected_2D[5][1]);
-    line(projected_2D[2][0], projected_2D[2][1], projected_2D[6][0], projected_2D[6][1]);
-    line(projected_2D[3][0], projected_2D[3][1], projected_2D[7][0], projected_2D[7][1]);
+    setcolor(WHITE);
+
+    // Simple loop to draw the cube for a limited time
+    for (int i = 0; i < 100; i++) {
+        cleardevice();
+        drawCube(getmaxx() / 2, getmaxy() / 2, 50); // Draw cube at the center of the screen
+    }
 
     getch();
     closegraph();
-}
-
-void main() {
-    draw_3D_cube();
+    return 0;
 }
